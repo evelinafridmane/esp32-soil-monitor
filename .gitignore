@@ -1,0 +1,25 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+
+# Personal project notes (not for public repo)
+CLAUDE.md
+
+# MicroPython firmware binary (re-download if needed)
+ESP32_GENERIC_C3-*.bin
+
+# Secrets — never commit
+secrets.py
+.env
+*.secret
