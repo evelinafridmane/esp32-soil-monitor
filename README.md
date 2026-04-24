@@ -24,7 +24,15 @@ Python backend for long-term storage and a web dashboard.
 ## Repo layout
 
 - `firmware/` — MicroPython code that runs on the ESP32
-- `backend/` — Python backend (coming soon)
+- `backend/` — FastAPI + PostgreSQL backend that receives readings and will serve the dashboard
+
+## Backend stack
+
+- **FastAPI** — web framework (routes, async, auto JSON handling)
+- **Pydantic** — request body validation
+- **psycopg** (v3) — PostgreSQL driver
+- **PostgreSQL 16** — database
+- **python-dotenv** — loads `.env` so credentials stay out of code
 
 ## Flashing & uploading
 
