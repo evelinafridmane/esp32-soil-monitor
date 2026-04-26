@@ -1,7 +1,9 @@
 from machine import Pin, ADC
 import time
 import network
+import urequests
 import secrets
+import config
 
 sensor = ADC(Pin(3)) #where my soil sensor is connected
 red = Pin(4, Pin.OUT) # input of red led
@@ -27,8 +29,22 @@ def connect_wifi(timeout=10):
     print("wifi failed — continuing offline")
     return wlan
 
+def post_reading(value):
+    try:
+        r = urequests.post(
+            config.BACKEND_URL,
+            json={"plant_id": config.PLANT_ID, "moisture_raw": value},
+        )
+        print("POST:", r.status_code)
+        r.close()
+        return True
+    except Exception as e:
+        print("POST failed:", e)
+        return False
+
 wlan = connect_wifi()
 
+i = 0
 while True:
     v = sensor.read_u16()
     red.value(0)
@@ -48,4 +64,9 @@ while True:
         state = "too wet"
 
     print(v, "->", state)
+
+    if i % config.POST_EVERY_N_READS == 0:
+        post_reading(v)
+    i += 1
+
     time.sleep(1)

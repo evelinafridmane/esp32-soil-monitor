@@ -8,8 +8,10 @@ Python backend for long-term storage and a web dashboard.
 - Reads soil moisture from a capacitive sensor on an ESP32-C3 Super Mini.
 - Drives an RGBW status LED so moisture level is visible at a glance
   (red = dry, yellow = getting dry, green = happy, off = too wet).
-- *Planned:* POSTs readings over WiFi to a backend running on a cloud VM.
-- *Planned:* Stores readings in PostgreSQL and serves a small dashboard.
+- POSTs readings over WiFi to a FastAPI backend, which stores them in
+  PostgreSQL. (Backend currently runs on a laptop on the LAN; will move to
+  a cloud VM once the dashboard is in place.)
+- *Planned:* Web dashboard rendering recent readings as a chart.
 - *Planned:* Per-plant thresholds — the LED color uses values configured per
   device so it reflects what's right for that specific plant (a succulent and
   a fern have very different "happy" ranges).
@@ -38,16 +40,25 @@ Python backend for long-term storage and a web dashboard.
 
 1. Flash MicroPython v1.28.0 for `ESP32_GENERIC_C3` once, using the
    [ESP Web Tool](https://espressif.github.io/esptool-js/).
-2. Copy the application code to the chip:
+2. In `firmware/`, create your local config files (both are gitignored):
+   - `secrets.py` with `WIFI_SSID` and `WIFI_PASSWORD`.
+   - `config.py` — copy `config.example.py` and fill in `BACKEND_URL`
+     (e.g. `http://<your-laptop-LAN-IP>:8000/readings`), `PLANT_ID`, and
+     `POST_EVERY_N_READS`.
+3. Copy all three files to the chip:
    ```
-   mpremote cp firmware/main.py :
+   mpremote cp firmware/main.py :main.py
+   mpremote cp firmware/secrets.py :secrets.py
+   mpremote cp firmware/config.py :config.py
    ```
-3. Reset the chip (`mpremote reset`) and the code runs automatically on boot.
+4. Reset the chip (`mpremote reset`) and the code runs automatically on boot.
 
 ## Status
 
-Early development. The device currently reads moisture and drives the LED
-locally. WiFi, backend, database, and dashboard are the next milestones.
+Early development. End-to-end pipeline works: the chip reads moisture every
+second, drives the LED locally, and POSTs a reading to the FastAPI backend
+every 5 minutes. Readings land in PostgreSQL. Web dashboard and a cloud
+deployment are the next milestones.
 
 ## License
 

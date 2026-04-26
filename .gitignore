@@ -23,3 +23,6 @@ ESP32_GENERIC_C3-*.bin
 secrets.py
 .env
 *.secret
+
+# Per-machine firmware config (real values; commit config.example.py instead)
+firmware/config.py
