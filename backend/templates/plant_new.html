@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Add plant &middot; Soil Monitor{% endblock %}
+
+{% block content %}
+<p><a href="/" class="back-link">&larr; All plants</a></p>
+
+<article>
+    <h2>Add a new plant</h2>
+    <p><small>Once added, you'll set the chip's <code>PLANT_ID</code> in <code>firmware/config.py</code> to monitor this plant.</small></p>
+
+    <form action="/plants" method="post">
+        <label for="name">Plant name
+            <input type="text" id="name" name="name" placeholder="e.g. Bladverk Calathea" required>
+        </label>
+
+        <label for="plant_type">Plant type
+            <input type="text" id="plant_type" name="plant_type" list="plant-types" placeholder="e.g. calathea, monstera">
+            <datalist id="plant-types">
+                {% for ptype in plant_types %}
+                <option value="{{ ptype }}">
+                {% endfor %}
+            </datalist>
+            <small>Pick from the list (auto-fills care info) or type a new one.</small>
+        </label>
+
+        <h4>Moisture thresholds</h4>
+        <p><small>Higher numbers = drier. Defaults are generic — tune per plant.</small></p>
+
+        <div class="grid">
+            <label for="threshold_dry">Needs water above
+                <input type="number" id="threshold_dry" name="threshold_dry" value="47000" required>
+            </label>
+            <label for="threshold_getting_dry">Getting dry above
+                <input type="number" id="threshold_getting_dry" name="threshold_getting_dry" value="40000" required>
+            </label>
+            <label for="threshold_too_wet">Too wet below
+                <input type="number" id="threshold_too_wet" name="threshold_too_wet" value="32000" required>
+            </label>
+        </div>
+
+        <button type="submit">Add plant</button>
+        <a href="/" role="button" class="secondary outline">Cancel</a>
+    </form>
+</article>
+{% endblock %}

@@ -1,0 +1,305 @@
+/* Soil Monitor theme — overrides Pico's defaults. */
+
+:root {
+    /* Brand colors */
+    --c-bg: #EAF4EE;             /* light mint */
+    --c-bg-card: #FFFFFF;
+    --c-bg-card-tint: #D9EADE;   /* deeper mint for care card */
+    --c-text: #1F4030;           /* deep forest pine */
+    --c-text-strong: #10301F;    /* very deep pine */
+    --c-text-muted: #4D6856;     /* cool green-gray */
+    --c-card-border: #CFE0D5;    /* mint border */
+    --c-primary: #1F5236;        /* forest pine */
+    --c-primary-deep: #0F3B2E;   /* deep pine */
+}
+
+:root,
+[data-theme="light"] {
+    /* Surfaces */
+    --pico-background-color: var(--c-bg);
+    --pico-card-background-color: var(--c-bg-card);
+    --pico-card-sectioning-background-color: #FBFAF5;
+
+    /* Text */
+    --pico-color: var(--c-text);
+    --pico-h1-color: var(--c-text-strong);
+    --pico-h2-color: var(--c-text-strong);
+    --pico-h3-color: var(--c-text-strong);
+    --pico-muted-color: var(--c-text-muted);
+    --pico-muted-border-color: var(--c-card-border);
+
+    /* Primary (forest green) */
+    --pico-primary: var(--c-primary);
+    --pico-primary-background: var(--c-primary);
+    --pico-primary-border: var(--c-primary);
+    --pico-primary-hover: var(--c-primary-deep);
+    --pico-primary-hover-background: var(--c-primary-deep);
+    --pico-primary-hover-border: var(--c-primary-deep);
+    --pico-primary-focus: rgba(47, 93, 63, 0.25);
+    --pico-primary-inverse: #FFFFFF;
+
+    /* Forms */
+    --pico-form-element-background-color: #FFFFFF;
+    --pico-form-element-border-color: #C8D2C5;
+
+    /* Shape */
+    --pico-border-radius: 14px;
+
+    /* Typography */
+    --pico-font-family: "Outfit", system-ui, -apple-system, sans-serif;
+    --pico-font-family-sans-serif: "Outfit", system-ui, -apple-system, sans-serif;
+    --pico-font-weight: 400;
+}
+
+/* Direct overrides — robust to whatever variable names Pico uses internally */
+html {
+    background-color: var(--c-bg);
+}
+
+body {
+    background-color: var(--c-bg);
+    color: var(--c-text);
+    min-height: 100vh;
+}
+
+/* Soft shadow on cards (Pico renders <article> as a card) */
+article {
+    box-shadow: 0 4px 24px rgba(31, 77, 61, 0.08);
+    border: 1px solid var(--c-card-border);
+}
+
+/* Make the page header feel a bit more like a brand banner */
+body > main.container > header {
+    padding-block: 2rem 1rem;
+}
+
+body > main.container > header h1 {
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--c-text-strong);
+}
+
+body > main.container > header p {
+    color: var(--c-text-muted);
+    margin-bottom: 0;
+}
+
+/* Footer styling */
+body > main.container > footer {
+    margin-top: 4rem;
+    padding-block: 2rem;
+    border-top: 1px solid var(--c-card-border);
+    text-align: center;
+    color: var(--c-text-muted);
+}
+
+/* Buttons rounded to match cards */
+button,
+[type="submit"],
+[role="button"] {
+    border-radius: 12px;
+    font-weight: 500;
+}
+
+/* Plant card grid */
+.plant-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-block: 2rem;
+}
+
+.plant-card {
+    text-align: center;
+    padding: 2rem 1.5rem;
+    margin: 0;
+}
+
+.plant-card h3 {
+    margin-bottom: 0.25rem;
+    color: var(--c-text-strong);
+}
+
+.plant-card .plant-type {
+    color: var(--c-text-muted);
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+    text-transform: capitalize;
+}
+
+.plant-illustration {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+    line-height: 1;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 0.35rem 0.9rem;
+    border-radius: 999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+}
+
+.status-happy .status-badge {
+    background: #D6E6DC;
+    color: var(--c-primary-deep);
+}
+
+.status-getting_dry .status-badge {
+    background: #FAEAC4;
+    color: #8A6320;
+}
+
+.status-dry .status-badge {
+    background: #F8D9D2;
+    color: #8E2E20;
+}
+
+.status-too_wet .status-badge {
+    background: #D2E1F0;
+    color: #2E5A88;
+}
+
+.status-no_data .status-badge {
+    background: #ECE8DC;
+    color: var(--c-text-muted);
+}
+
+.reading-line {
+    margin: 0;
+    color: var(--c-text-muted);
+}
+
+.reading-line strong {
+    color: var(--c-text-strong);
+    font-size: 1.1rem;
+}
+
+/* "+ Add plant" card — dashed border, no shadow, lights up on hover */
+.add-plant-card-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.add-plant-card {
+    text-align: center;
+    padding: 2rem 1.5rem;
+    margin: 0;
+    background: transparent;
+    border: 2px dashed var(--c-card-border);
+    box-shadow: none;
+    color: var(--c-text-muted);
+    transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.add-plant-card-link:hover .add-plant-card {
+    border-color: var(--c-primary);
+    color: var(--c-primary);
+    background: rgba(31, 82, 54, 0.04);
+}
+
+.add-plant-icon {
+    font-size: 3rem;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+    font-weight: 300;
+}
+
+/* Card link wrapper — entire card is clickable, lifts on hover */
+.plant-card-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.plant-card-link article {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.plant-card-link:hover article {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 32px rgba(31, 77, 61, 0.14);
+}
+
+/* Plant detail page */
+.back-link {
+    text-decoration: none;
+    color: var(--c-text-muted);
+    font-size: 0.9rem;
+}
+
+.back-link:hover {
+    color: var(--c-text-strong);
+}
+
+.plant-detail {
+    text-align: center;
+    padding: 3rem 1.5rem;
+}
+
+.plant-illustration-large {
+    font-size: 5rem;
+    margin-bottom: 0.5rem;
+    line-height: 1;
+}
+
+.plant-detail h2 {
+    margin-bottom: 0.25rem;
+    color: var(--c-text-strong);
+}
+
+/* Threshold table — colored rows by status zone */
+.thresholds-table {
+    margin: 0;
+}
+
+.thresholds-table td:last-child {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    color: var(--c-text-muted);
+}
+
+.thresholds-table tr.threshold-dry { background: #FBE8E2; }
+.thresholds-table tr.threshold-getting_dry { background: #FCEFCF; }
+.thresholds-table tr.threshold-happy { background: #DEEDE2; }
+.thresholds-table tr.threshold-too_wet { background: #DCE7F2; }
+
+.thresholds-table tr td {
+    border-bottom: none;
+}
+
+/* Chart container — height required because Chart.js is responsive */
+.chart-container {
+    position: relative;
+    height: 320px;
+    margin-block: 1rem;
+}
+
+/* Care card — sage tint to set it apart from the white cards */
+.care-card {
+    background: var(--c-bg-card-tint);
+}
+
+.care-card h3 {
+    color: var(--c-primary-deep);
+}
+
+.care-card h4 {
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+    color: var(--c-primary);
+}
+
+.care-card p {
+    line-height: 1.65;
+    color: var(--c-text);
+}

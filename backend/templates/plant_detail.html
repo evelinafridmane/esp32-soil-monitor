@@ -1,0 +1,122 @@
+
+{% extends "base.html" %}
+
+{% block title %}{{ plant.name }} &middot; Soil Monitor{% endblock %}
+
+{% block content %}
+<p><a href="/" class="back-link">&larr; All plants</a></p>
+
+<article class="plant-detail status-{{ status }}">
+    <div class="plant-illustration-large">🌿</div>
+    <h2>{{ plant.name }}</h2>
+    {% if plant.plant_type %}
+    <p class="plant-type">{{ plant.plant_type }}</p>
+    {% endif %}
+    <span class="status-badge">{{ status_label }}</span>
+
+    {% if latest_raw is not none %}
+    <p class="reading-line">
+        Latest moisture: <strong>{{ latest_raw }}</strong>
+        <small>&middot; {{ last_reading_text }}</small>
+    </p>
+    {% else %}
+    <p><small>No readings yet.</small></p>
+    {% endif %}
+</article>
+
+{% if plant.description or plant.watering_habits %}
+<article class="care-card">
+    <h3>About {{ plant.plant_type|capitalize }}</h3>
+    {% if plant.description %}
+    <p>{{ plant.description }}</p>
+    {% endif %}
+    {% if plant.watering_habits %}
+    <h4>Watering</h4>
+    <p>{{ plant.watering_habits }}</p>
+    {% endif %}
+</article>
+{% endif %}
+
+<article>
+    <h3>Care thresholds</h3>
+    <table class="thresholds-table">
+        <tbody>
+            <tr class="threshold-dry"><td>Needs water (dry)</td><td>&ge; {{ plant.threshold_dry }}</td></tr>
+            <tr class="threshold-getting_dry"><td>Getting dry</td><td>{{ plant.threshold_getting_dry }} &ndash; {{ plant.threshold_dry }}</td></tr>
+            <tr class="threshold-happy"><td>Happy</td><td>{{ plant.threshold_too_wet }} &ndash; {{ plant.threshold_getting_dry }}</td></tr>
+            <tr class="threshold-too_wet"><td>Too wet</td><td>&lt; {{ plant.threshold_too_wet }}</td></tr>
+        </tbody>
+    </table>
+    <p><small>Higher numbers = drier soil (capacitive sensors are inverted).</small></p>
+</article>
+
+<article>
+    <h3>Moisture history</h3>
+    {% if chart_data %}
+    <div class="chart-container">
+        <canvas id="moistureChart"></canvas>
+    </div>
+    <p><small>Higher on the chart = wetter soil. Y-axis is inverted because capacitive sensors read higher when drier.</small></p>
+    {% else %}
+    <p><small>No readings yet. Once your sensor POSTs data, you'll see it here.</small></p>
+    {% endif %}
+</article>
+
+{% if chart_data %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+<script>
+    const chartData = {{ chart_data | tojson }};
+
+    new Chart(document.getElementById("moistureChart"), {
+        type: "line",
+        data: {
+            datasets: [{
+                label: "Moisture",
+                data: chartData,
+                borderColor: "#2F5D3F",
+                backgroundColor: "rgba(47, 93, 63, 0.12)",
+                tension: 0.3,
+                fill: true,
+                pointRadius: 1.5,
+                pointHoverRadius: 5,
+                borderWidth: 2,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    type: "time",
+                    time: {
+                        displayFormats: {
+                            minute: "MMM d, HH:mm",
+                            hour: "MMM d, HH:mm",
+                            day: "MMM d",
+                            week: "MMM d",
+                            month: "MMM yyyy"
+                        },
+                        tooltipFormat: "EEE, MMM d, HH:mm"
+                    },
+                    grid: { color: "rgba(0,0,0,0.04)" },
+                },
+                y: {
+                    reverse: true,
+                    grid: { color: "rgba(0,0,0,0.04)" },
+                    title: { display: true, text: "Moisture (raw)" }
+                }
+            },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: (ctx) => `Moisture: ${ctx.parsed.y}`
+                    }
+                }
+            }
+        }
+    });
+</script>
+{% endif %}
+{% endblock %}

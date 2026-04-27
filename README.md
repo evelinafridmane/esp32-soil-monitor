@@ -1,6 +1,6 @@
 # Soil Monitor
 
-An ESP32-C3 + MicroPython soil moisture monitor for houseplants, with a planned
+An ESP32-C3 + MicroPython soil moisture monitor for houseplants, with a
 Python backend for long-term storage and a web dashboard.
 
 ## What it does
@@ -9,12 +9,18 @@ Python backend for long-term storage and a web dashboard.
 - Drives an RGBW status LED so moisture level is visible at a glance
   (red = dry, yellow = getting dry, green = happy, off = too wet).
 - POSTs readings over WiFi to a FastAPI backend, which stores them in
-  PostgreSQL. (Backend currently runs on a laptop on the LAN; will move to
-  a cloud VM once the dashboard is in place.)
-- *Planned:* Web dashboard rendering recent readings as a chart.
-- *Planned:* Per-plant thresholds — the LED color uses values configured per
-  device so it reflects what's right for that specific plant (a succulent and
-  a fern have very different "happy" ranges).
+  PostgreSQL. (Backend currently runs on a laptop on the LAN; will move
+  to a cloud VM later.)
+- Web dashboard at `/` — one card per plant with current status. Click a
+  plant for a Chart.js graph of moisture over time, plus per-type care
+  info (description + watering habits) joined from a `plant_types` table.
+- Add new plants from the web (`/plants/new`) — the form autocompletes
+  plant type from existing entries via an HTML5 `<datalist>`.
+- *Planned:* Per-plant thresholds fetched by the chip on boot, so each
+  plant's LED reflects values appropriate for that species (a succulent
+  and a fern have very different "happy" ranges).
+- *Planned:* AI-generated care info when a new `plant_type` is added,
+  via the Claude API.
 
 ## Hardware
 
@@ -26,15 +32,29 @@ Python backend for long-term storage and a web dashboard.
 ## Repo layout
 
 - `firmware/` — MicroPython code that runs on the ESP32
-- `backend/` — FastAPI + PostgreSQL backend that receives readings and will serve the dashboard
+- `backend/` — FastAPI + PostgreSQL backend that receives readings and serves the dashboard
+  - `app.py` — routes (POST readings, home grid, plant detail, add-plant form)
+  - `templates/` — Jinja templates (`base.html`, `home.html`, `plant_detail.html`, `plant_new.html`)
+  - `static/css/custom.css` — theme overrides for Pico
 
 ## Backend stack
 
-- **FastAPI** — web framework (routes, async, auto JSON handling)
+- **FastAPI** — web framework (routes, async, auto JSON handling, form parsing via `Form(...)`)
+- **Jinja2** — server-side HTML templating
+- **Pico.css v2** + custom CSS variables — styling, no build step
+- **Chart.js v4** + `chartjs-adapter-date-fns` — moisture chart on the detail page
+- **Outfit** (Google Fonts) — display font
 - **Pydantic** — request body validation
-- **psycopg** (v3) — PostgreSQL driver
+- **psycopg** (v3) — async PostgreSQL driver
+- **python-multipart** — form-data parsing
 - **PostgreSQL 16** — database
 - **python-dotenv** — loads `.env` so credentials stay out of code
+
+## Database schema
+
+- `plants` — id, name, plant_type, three threshold columns, created_at
+- `readings` — id, plant_id (FK), moisture_raw, recorded_at; indexed on `(plant_id, recorded_at DESC)`
+- `plant_types` — name (PK), description, watering_habits, created_at — care info shared across all plants of a type
 
 ## Flashing & uploading
 
@@ -55,10 +75,14 @@ Python backend for long-term storage and a web dashboard.
 
 ## Status
 
-Early development. End-to-end pipeline works: the chip reads moisture every
-second, drives the LED locally, and POSTs a reading to the FastAPI backend
-every 5 minutes. Readings land in PostgreSQL. Web dashboard and a cloud
-deployment are the next milestones.
+Local pipeline complete: chip reads moisture every second, drives the LED
+locally, and POSTs a reading to FastAPI every 5 minutes. Readings land in
+PostgreSQL. The web dashboard is live (home grid + plant detail page with
+Chart.js graph). Plants can be added via the `/plants/new` form.
+
+Next: edit-plant form, AI-generated care info on new types, SVG plant
+illustrations, watering log. Cloud deployment after the local feature
+set is settled.
 
 ## License
 

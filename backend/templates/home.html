@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Home &middot; Soil Monitor{% endblock %}
+
+{% block content %}
+<section class="plant-grid">
+    {% for plant in plants %}
+    <a href="/plants/{{ plant.id }}" class="plant-card-link">
+        <article class="plant-card status-{{ plant.status }}">
+            <div class="plant-illustration">🌿</div>
+            <h3>{{ plant.name }}</h3>
+            {% if plant.plant_type %}
+            <p class="plant-type">{{ plant.plant_type }}</p>
+            {% endif %}
+            <span class="status-badge">{{ plant.status_label }}</span>
+            {% if plant.moisture_raw is not none %}
+            <p class="reading-line">
+                <strong>{{ plant.moisture_raw }}</strong>
+                <small>&middot; {{ plant.last_reading_text }}</small>
+            </p>
+            {% else %}
+            <p class="reading-line"><small>No readings yet</small></p>
+            {% endif %}
+        </article>
+    </a>
+    {% endfor %}
+
+    <a href="/plants/new" class="add-plant-card-link">
+        <article class="add-plant-card">
+            <div class="add-plant-icon">+</div>
+            <p>Add a new plant</p>
+        </article>
+    </a>
+</section>
+{% endblock %}
