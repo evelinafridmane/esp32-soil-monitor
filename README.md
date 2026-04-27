@@ -16,6 +16,8 @@ Python backend for long-term storage and a web dashboard.
   info (description + watering habits) joined from a `plant_types` table.
 - Add new plants from the web (`/plants/new`) — the form autocompletes
   plant type from existing entries via an HTML5 `<datalist>`.
+- Edit existing plants (`/plants/{id}/edit`) — rename, change type,
+  retune moisture thresholds without writing SQL.
 - *Planned:* Per-plant thresholds fetched by the chip on boot, so each
   plant's LED reflects values appropriate for that species (a succulent
   and a fern have very different "happy" ranges).
@@ -33,8 +35,8 @@ Python backend for long-term storage and a web dashboard.
 
 - `firmware/` — MicroPython code that runs on the ESP32
 - `backend/` — FastAPI + PostgreSQL backend that receives readings and serves the dashboard
-  - `app.py` — routes (POST readings, home grid, plant detail, add-plant form)
-  - `templates/` — Jinja templates (`base.html`, `home.html`, `plant_detail.html`, `plant_new.html`)
+  - `app.py` — routes (POST readings, home grid, plant detail, add/edit plant forms)
+  - `templates/` — Jinja templates (`base.html`, `home.html`, `plant_detail.html`, `plant_new.html`, `plant_edit.html`)
   - `static/css/custom.css` — theme overrides for Pico
 
 ## Backend stack
@@ -80,9 +82,8 @@ locally, and POSTs a reading to FastAPI every 5 minutes. Readings land in
 PostgreSQL. The web dashboard is live (home grid + plant detail page with
 Chart.js graph). Plants can be added via the `/plants/new` form.
 
-Next: edit-plant form, AI-generated care info on new types, SVG plant
-illustrations, watering log. Cloud deployment after the local feature
-set is settled.
+Next: AI-generated care info on new types, SVG plant illustrations,
+watering log. Cloud deployment after the local feature set is settled.
 
 ## License
 
