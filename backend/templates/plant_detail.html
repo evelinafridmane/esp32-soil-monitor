@@ -4,7 +4,10 @@
 {% block title %}{{ plant.name }} &middot; Soil Monitor{% endblock %}
 
 {% block content %}
-<p><a href="/" class="back-link">&larr; All plants</a></p>
+<div class="page-toolbar">
+    <a href="/" class="back-link">&larr; All plants</a>
+    <a href="/plants/{{ plant.id }}/edit" class="edit-link">Edit</a>
+</div>
 
 <article class="plant-detail status-{{ status }}">
     <div class="plant-illustration-large">🌿</div>

@@ -230,6 +230,13 @@ button,
 }
 
 /* Plant detail page */
+.page-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
 .back-link {
     text-decoration: none;
     color: var(--c-text-muted);
@@ -238,6 +245,22 @@ button,
 
 .back-link:hover {
     color: var(--c-text-strong);
+}
+
+.edit-link {
+    text-decoration: none;
+    color: var(--c-text-muted);
+    font-size: 0.9rem;
+    padding: 0.4rem 0.9rem;
+    border-radius: 12px;
+    border: 1px solid var(--c-card-border);
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.edit-link:hover {
+    background: var(--c-bg-card-tint);
+    color: var(--c-primary);
+    border-color: var(--c-primary);
 }
 
 .plant-detail {

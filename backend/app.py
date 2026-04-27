@@ -126,6 +126,64 @@ async def create_plant(
     return RedirectResponse(url=f"/plants/{row[0]}", status_code=303)
 
 
+@app.get("/plants/{plant_id}/edit")
+async def edit_plant_form(request: Request, plant_id: int):
+    async with await psycopg.AsyncConnection.connect(DATABASE_URL) as conn:
+        async with conn.cursor() as cur:
+            await cur.execute("""
+                SELECT id, name, plant_type,
+                       threshold_dry, threshold_getting_dry, threshold_too_wet
+                FROM plants WHERE id = %s
+            """, (plant_id,))
+            plant_row = await cur.fetchone()
+            if plant_row is None:
+                raise HTTPException(status_code=404, detail="Plant not found")
+            await cur.execute("SELECT name FROM plant_types ORDER BY name")
+            plant_types = [row[0] for row in await cur.fetchall()]
+
+    (pid, name, ptype, t_dry, t_gd, t_tw) = plant_row
+    return templates.TemplateResponse(request, "plant_edit.html", {
+        "plant": {
+            "id": pid,
+            "name": name,
+            "plant_type": ptype or "",
+            "threshold_dry": t_dry,
+            "threshold_getting_dry": t_gd,
+            "threshold_too_wet": t_tw,
+        },
+        "plant_types": plant_types,
+    })
+
+
+@app.post("/plants/{plant_id}")
+async def update_plant(
+    plant_id: int,
+    name: str = Form(...),
+    plant_type: str = Form(""),
+    threshold_dry: int = Form(...),
+    threshold_getting_dry: int = Form(...),
+    threshold_too_wet: int = Form(...),
+):
+    plant_type_clean = plant_type.strip() or None
+
+    async with await psycopg.AsyncConnection.connect(DATABASE_URL) as conn:
+        async with conn.cursor() as cur:
+            await cur.execute("""
+                UPDATE plants
+                SET name = %s,
+                    plant_type = %s,
+                    threshold_dry = %s,
+                    threshold_getting_dry = %s,
+                    threshold_too_wet = %s
+                WHERE id = %s
+            """, (name.strip(), plant_type_clean, threshold_dry,
+                  threshold_getting_dry, threshold_too_wet, plant_id))
+            if cur.rowcount == 0:
+                raise HTTPException(status_code=404, detail="Plant not found")
+
+    return RedirectResponse(url=f"/plants/{plant_id}", status_code=303)
+
+
 @app.get("/plants/{plant_id}")
 async def plant_detail(request: Request, plant_id: int):
     async with await psycopg.AsyncConnection.connect(DATABASE_URL) as conn:
