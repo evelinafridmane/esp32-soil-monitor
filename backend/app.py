@@ -184,6 +184,21 @@ async def update_plant(
     return RedirectResponse(url=f"/plants/{plant_id}", status_code=303)
 
 
+@app.post("/plants/{plant_id}/water")
+async def log_watering(plant_id: int, request: Request):
+    async with await psycopg.AsyncConnection.connect(DATABASE_URL) as conn:
+        async with conn.cursor() as cur:
+            await cur.execute("SELECT 1 FROM plants WHERE id = %s", (plant_id,))
+            if await cur.fetchone() is None:
+                raise HTTPException(status_code=404, detail="Plant not found")
+            await cur.execute(
+                "INSERT INTO waterings (plant_id) VALUES (%s)",
+                (plant_id,),
+            )
+    redirect_url = request.headers.get("referer", f"/plants/{plant_id}")
+    return RedirectResponse(url=redirect_url, status_code=303)
+
+
 @app.get("/plants/{plant_id}")
 async def plant_detail(request: Request, plant_id: int):
     async with await psycopg.AsyncConnection.connect(DATABASE_URL) as conn:
@@ -210,6 +225,21 @@ async def plant_detail(request: Request, plant_id: int):
             """, (plant_id,))
             recent_rows = list(reversed(await cur.fetchall()))
 
+            await cur.execute("""
+                SELECT watered_at FROM waterings
+                WHERE plant_id = %s
+                ORDER BY watered_at DESC
+                LIMIT 1
+            """, (plant_id,))
+            last_watering_row = await cur.fetchone()
+
+            await cur.execute("""
+                SELECT COUNT(*) FROM waterings
+                WHERE plant_id = %s
+                  AND watered_at >= NOW() - INTERVAL '30 days'
+            """, (plant_id,))
+            watering_count_row = await cur.fetchone()
+
     (pid, name, ptype, t_dry, t_gd, t_tw, description, watering_habits) = plant_row
     latest_raw, latest_time = recent_rows[-1] if recent_rows else (None, None)
     status = compute_status(latest_raw, t_dry, t_gd, t_tw)
@@ -235,6 +265,8 @@ async def plant_detail(request: Request, plant_id: int):
         "latest_raw": latest_raw,
         "last_reading_text": humanize_time_ago(latest_time),
         "chart_data": chart_data,
+        "last_watered_text": humanize_time_ago(last_watering_row[0]) if last_watering_row else None,
+        "watering_count_30d": watering_count_row[0],
     })
 
 

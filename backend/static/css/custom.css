@@ -3,6 +3,7 @@
 :root {
     /* Brand colors */
     --c-bg: #EAF4EE;             /* light mint */
+    --c-bg-end: #F4F9F5;         /* gradient end */
     --c-bg-card: #FFFFFF;
     --c-bg-card-tint: #D9EADE;   /* deeper mint for care card */
     --c-text: #1F4030;           /* deep forest pine */
@@ -11,6 +12,11 @@
     --c-card-border: #CFE0D5;    /* mint border */
     --c-primary: #1F5236;        /* forest pine */
     --c-primary-deep: #0F3B2E;   /* deep pine */
+
+    /* Type families */
+    --font-display: "Fraunces", Georgia, serif;
+    --font-body: "Outfit", system-ui, -apple-system, sans-serif;
+    --font-mono: "JetBrains Mono", "SF Mono", Monaco, monospace;
 }
 
 :root,
@@ -57,9 +63,26 @@ html {
 }
 
 body {
-    background-color: var(--c-bg);
+    background: linear-gradient(135deg, var(--c-bg) 0%, var(--c-bg-end) 100%);
+    background-attachment: fixed;
     color: var(--c-text);
     min-height: 100vh;
+    font-family: var(--font-body);
+}
+
+/* Headings get the serif treatment */
+h1, h2, h3 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+}
+
+/* Numeric data uses the mono font for visual texture and tabular alignment */
+.reading-line strong,
+.thresholds-table td:last-child,
+.stat-number {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
 }
 
 /* Soft shadow on cards (Pico renders <article> as a card) */
@@ -74,9 +97,14 @@ body > main.container > header {
 }
 
 body > main.container > header h1 {
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    color: var(--c-text-strong);
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-style: italic;
+    font-size: clamp(2.75rem, 5vw, 4.5rem);
+    letter-spacing: -0.035em;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+    color: var(--c-primary);
 }
 
 body > main.container > header p {
@@ -93,12 +121,19 @@ body > main.container > footer {
     color: var(--c-text-muted);
 }
 
-/* Buttons rounded to match cards */
+/* Buttons rounded to match cards, with press microinteraction */
 button,
 [type="submit"],
 [role="button"] {
     border-radius: 12px;
     font-weight: 500;
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
+}
+
+button:active,
+[type="submit"]:active,
+[role="button"]:active {
+    transform: scale(0.97);
 }
 
 /* Plant card grid */
@@ -128,8 +163,9 @@ button,
 }
 
 .plant-illustration {
-    font-size: 3rem;
-    margin-bottom: 0.5rem;
+    width: 140px;
+    height: 140px;
+    margin: 0 auto 0.5rem;
     line-height: 1;
 }
 
@@ -155,6 +191,16 @@ button,
 .status-dry .status-badge {
     background: #F8D9D2;
     color: #8E2E20;
+    animation: status-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes status-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(142, 46, 32, 0.5); }
+    50%      { box-shadow: 0 0 0 8px rgba(142, 46, 32, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .status-dry .status-badge { animation: none; }
 }
 
 .status-too_wet .status-badge {
@@ -213,20 +259,45 @@ button,
     font-weight: 300;
 }
 
-/* Card link wrapper — entire card is clickable, lifts on hover */
+/* Plant card — main area is a link to detail, with a separate water button below */
+.plant-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.plant-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 42px rgba(31, 77, 61, 0.16);
+}
+
 .plant-card-link {
     text-decoration: none;
     color: inherit;
     display: block;
+    flex: 1;
 }
 
-.plant-card-link article {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+.card-water-form {
+    margin: 1rem 0 0 0;
 }
 
-.plant-card-link:hover article {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 32px rgba(31, 77, 61, 0.14);
+.card-water-btn {
+    width: 100%;
+    background: transparent;
+    color: var(--c-primary);
+    border: 1px solid var(--c-card-border);
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 0.45rem 1rem;
+    cursor: pointer;
+}
+
+.card-water-btn:hover {
+    background: var(--c-bg-card-tint);
+    border-color: var(--c-primary);
+    color: var(--c-primary-deep);
 }
 
 /* Plant detail page */
@@ -269,9 +340,17 @@ button,
 }
 
 .plant-illustration-large {
-    font-size: 5rem;
-    margin-bottom: 0.5rem;
+    width: 220px;
+    height: 220px;
+    margin: 0 auto 0.5rem;
     line-height: 1;
+}
+
+/* Lottie plant animation — fills its wrapper (.plant-illustration / .plant-illustration-large) */
+lottie-player {
+    display: block;
+    width: 100%;
+    height: 100%;
 }
 
 .plant-detail h2 {
@@ -325,4 +404,62 @@ button,
 .care-card p {
     line-height: 1.65;
     color: var(--c-text);
+}
+
+/* Watering card */
+.watering-card {
+    text-align: center;
+}
+
+.watering-stats {
+    display: flex;
+    justify-content: center;
+    gap: 3rem;
+    margin: 1rem 0 1.5rem;
+    flex-wrap: wrap;
+}
+
+.watering-stat-label {
+    color: var(--c-text-muted);
+    font-size: 0.85rem;
+    text-transform: lowercase;
+    letter-spacing: 0.02em;
+    margin-bottom: 0.25rem;
+}
+
+.watering-stat-value {
+    font-weight: 500;
+    font-size: 1.15rem;
+    color: var(--c-text-strong);
+}
+
+.watering-form {
+    margin: 0;
+}
+
+.watering-form button {
+    width: 100%;
+    max-width: 340px;
+}
+
+/* Stat-tile — the big moisture number on the detail page */
+.stat-tile {
+    text-align: center;
+    margin: 1.5rem 0 0.5rem;
+}
+
+.stat-number {
+    font-size: clamp(2.5rem, 7vw, 4.5rem);
+    font-weight: 500;
+    color: var(--c-text-strong);
+    line-height: 1;
+    letter-spacing: -0.03em;
+}
+
+.stat-label {
+    color: var(--c-text-muted);
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+    text-transform: lowercase;
+    letter-spacing: 0.02em;
 }

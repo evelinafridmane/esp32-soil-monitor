@@ -10,7 +10,7 @@
 </div>
 
 <article class="plant-detail status-{{ status }}">
-    <div class="plant-illustration-large">🌿</div>
+    <div class="plant-illustration-large">{% include "_plant_svg.html" %}</div>
     <h2>{{ plant.name }}</h2>
     {% if plant.plant_type %}
     <p class="plant-type">{{ plant.plant_type }}</p>
@@ -18,13 +18,34 @@
     <span class="status-badge">{{ status_label }}</span>
 
     {% if latest_raw is not none %}
-    <p class="reading-line">
-        Latest moisture: <strong>{{ latest_raw }}</strong>
-        <small>&middot; {{ last_reading_text }}</small>
-    </p>
+    <div class="stat-tile">
+        <div class="stat-number">{{ latest_raw }}</div>
+        <div class="stat-label">moisture &middot; {{ last_reading_text }}</div>
+    </div>
     {% else %}
     <p><small>No readings yet.</small></p>
     {% endif %}
+</article>
+
+<article class="watering-card">
+    <h3>Watering</h3>
+    <div class="watering-stats">
+        <div class="watering-stat">
+            <div class="watering-stat-label">Last watered</div>
+            <div class="watering-stat-value">
+                {% if last_watered_text %}{{ last_watered_text }}{% else %}Never{% endif %}
+            </div>
+        </div>
+        <div class="watering-stat">
+            <div class="watering-stat-label">Past 30 days</div>
+            <div class="watering-stat-value">
+                {{ watering_count_30d }} time{{ '' if watering_count_30d == 1 else 's' }}
+            </div>
+        </div>
+    </div>
+    <form action="/plants/{{ plant.id }}/water" method="post" class="watering-form">
+        <button type="submit">💧 I just watered</button>
+    </form>
 </article>
 
 {% if plant.description or plant.watering_habits %}

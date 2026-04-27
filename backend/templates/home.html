@@ -5,9 +5,9 @@
 {% block content %}
 <section class="plant-grid">
     {% for plant in plants %}
-    <a href="/plants/{{ plant.id }}" class="plant-card-link">
-        <article class="plant-card status-{{ plant.status }}">
-            <div class="plant-illustration">🌿</div>
+    <article class="plant-card status-{{ plant.status }}">
+        <a href="/plants/{{ plant.id }}" class="plant-card-link">
+            <div class="plant-illustration">{% include "_plant_svg.html" %}</div>
             <h3>{{ plant.name }}</h3>
             {% if plant.plant_type %}
             <p class="plant-type">{{ plant.plant_type }}</p>
@@ -21,8 +21,11 @@
             {% else %}
             <p class="reading-line"><small>No readings yet</small></p>
             {% endif %}
-        </article>
-    </a>
+        </a>
+        <form action="/plants/{{ plant.id }}/water" method="post" class="card-water-form">
+            <button type="submit" class="card-water-btn">💧 Just watered</button>
+        </form>
+    </article>
     {% endfor %}
 
     <a href="/plants/new" class="add-plant-card-link">

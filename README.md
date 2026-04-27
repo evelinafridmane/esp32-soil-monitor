@@ -18,6 +18,9 @@ Python backend for long-term storage and a web dashboard.
   plant type from existing entries via an HTML5 `<datalist>`.
 - Edit existing plants (`/plants/{id}/edit`) — rename, change type,
   retune moisture thresholds without writing SQL.
+- Log waterings — a "💧 Just watered" button on each home card and on
+  the plant detail page records the event. The detail page shows the
+  most recent watering and the count over the last 30 days.
 - *Planned:* Per-plant thresholds fetched by the chip on boot, so each
   plant's LED reflects values appropriate for that species (a succulent
   and a fern have very different "happy" ranges).
@@ -45,7 +48,8 @@ Python backend for long-term storage and a web dashboard.
 - **Jinja2** — server-side HTML templating
 - **Pico.css v2** + custom CSS variables — styling, no build step
 - **Chart.js v4** + `chartjs-adapter-date-fns` — moisture chart on the detail page
-- **Outfit** (Google Fonts) — display font
+- **Lottie player** (`@lottiefiles/lottie-player`) — animated plant illustration
+- **Outfit + Fraunces + JetBrains Mono** (Google Fonts) — body / serif headings / numeric data
 - **Pydantic** — request body validation
 - **psycopg** (v3) — async PostgreSQL driver
 - **python-multipart** — form-data parsing
@@ -57,6 +61,7 @@ Python backend for long-term storage and a web dashboard.
 - `plants` — id, name, plant_type, three threshold columns, created_at
 - `readings` — id, plant_id (FK), moisture_raw, recorded_at; indexed on `(plant_id, recorded_at DESC)`
 - `plant_types` — name (PK), description, watering_habits, created_at — care info shared across all plants of a type
+- `waterings` — id, plant_id (FK), watered_at, notes; indexed on `(plant_id, watered_at DESC)`
 
 ## Flashing & uploading
 
@@ -82,8 +87,8 @@ locally, and POSTs a reading to FastAPI every 5 minutes. Readings land in
 PostgreSQL. The web dashboard is live (home grid + plant detail page with
 Chart.js graph). Plants can be added via the `/plants/new` form.
 
-Next: AI-generated care info on new types, SVG plant illustrations,
-watering log. Cloud deployment after the local feature set is settled.
+Next: chart overlay for watering events, AI-generated care info on
+new plant types, cloud deployment.
 
 ## License
 
