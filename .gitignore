@@ -16,6 +16,9 @@ env/
 # Personal project notes (not for public repo)
 CLAUDE.md
 
+# Claude Code local state (lock files, settings)
+.claude/
+
 # MicroPython firmware binary (re-download if needed)
 ESP32_GENERIC_C3-*.bin
 
