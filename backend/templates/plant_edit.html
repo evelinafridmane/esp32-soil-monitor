@@ -14,13 +14,16 @@
         </label>
 
         <label for="plant_type">Plant type
-            <input type="text" id="plant_type" name="plant_type" list="plant-types" value="{{ plant.plant_type }}">
-            <datalist id="plant-types">
-                {% for ptype in plant_types %}
-                <option value="{{ ptype }}">
-                {% endfor %}
-            </datalist>
-            <small>Pick from the list (auto-fills care info) or type a new one.</small>
+            <div class="grid">
+                <select id="plant_type_picker" onchange="document.getElementById('plant_type').value = this.value;">
+                    <option value="">-- pick existing --</option>
+                    {% for ptype in plant_types %}
+                    <option value="{{ ptype }}" {% if ptype == plant.plant_type %}selected{% endif %}>{{ ptype }}</option>
+                    {% endfor %}
+                </select>
+                <input type="text" id="plant_type" name="plant_type" value="{{ plant.plant_type }}" placeholder="or type a new one">
+            </div>
+            <small>Pick from the list, or type a new one (we'll auto-generate care info).</small>
         </label>
 
         <h4>Moisture thresholds</h4>

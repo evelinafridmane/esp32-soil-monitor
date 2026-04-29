@@ -86,26 +86,55 @@
     {% endif %}
 </article>
 
+<article class="danger-zone">
+    <h3>Danger zone</h3>
+    <p><small>Removes this plant along with all its readings and waterings. This cannot be undone.</small></p>
+    <form action="/plants/{{ plant.id }}/delete" method="post"
+          onsubmit="return confirm('Delete {{ plant.name }}? This will permanently remove the plant and all its readings and waterings.');">
+        <button type="submit" class="delete-button">Delete this plant</button>
+    </form>
+</article>
+
 {% if chart_data %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 <script>
     const chartData = {{ chart_data | tojson }};
+    const wateringTimes = {{ watering_times | tojson }};
+
+    const ys = chartData.map(d => d.y);
+    const minY = Math.min(...ys);
+    const maxY = Math.max(...ys);
+    const wateringY = minY - (maxY - minY) * 0.05;
+    const wateringPoints = wateringTimes.map(t => ({ x: t, y: wateringY }));
 
     new Chart(document.getElementById("moistureChart"), {
         type: "line",
         data: {
-            datasets: [{
-                label: "Moisture",
-                data: chartData,
-                borderColor: "#2F5D3F",
-                backgroundColor: "rgba(47, 93, 63, 0.12)",
-                tension: 0.3,
-                fill: true,
-                pointRadius: 1.5,
-                pointHoverRadius: 5,
-                borderWidth: 2,
-            }]
+            datasets: [
+                {
+                    label: "Moisture",
+                    data: chartData,
+                    borderColor: "#2F5D3F",
+                    backgroundColor: "rgba(47, 93, 63, 0.12)",
+                    tension: 0.3,
+                    fill: true,
+                    pointRadius: 1.5,
+                    pointHoverRadius: 5,
+                    borderWidth: 2,
+                },
+                {
+                    label: "Watered",
+                    type: "scatter",
+                    data: wateringPoints,
+                    backgroundColor: "#3B82F6",
+                    borderColor: "#1E40AF",
+                    borderWidth: 1.5,
+                    pointRadius: 6,
+                    pointHoverRadius: 9,
+                    showLine: false,
+                }
+            ]
         },
         options: {
             responsive: true,
@@ -132,10 +161,15 @@
                 }
             },
             plugins: {
-                legend: { display: false },
+                legend: { display: true, position: "top" },
                 tooltip: {
                     callbacks: {
-                        label: (ctx) => `Moisture: ${ctx.parsed.y}`
+                        label: (ctx) => {
+                            if (ctx.dataset.label === "Watered") {
+                                return "Watered";
+                            }
+                            return `Moisture: ${ctx.parsed.y}`;
+                        }
                     }
                 }
             }

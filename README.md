@@ -14,18 +14,30 @@ Python backend for long-term storage and a web dashboard.
 - Web dashboard at `/` — one card per plant with current status. Click a
   plant for a Chart.js graph of moisture over time, plus per-type care
   info (description + watering habits) joined from a `plant_types` table.
-- Add new plants from the web (`/plants/new`) — the form autocompletes
-  plant type from existing entries via an HTML5 `<datalist>`.
+- Add new plants from the web (`/plants/new`) — pick the type from a
+  dropdown of existing types, or type a new one in the text field.
 - Edit existing plants (`/plants/{id}/edit`) — rename, change type,
-  retune moisture thresholds without writing SQL.
+  retune moisture thresholds without writing SQL. Same page also has
+  a **Delete plant** button (with a confirmation dialog) that removes
+  the plant along with all its readings and waterings.
 - Log waterings — a "💧 Just watered" button on each home card and on
   the plant detail page records the event. The detail page shows the
-  most recent watering and the count over the last 30 days.
+  most recent watering and the count over the last 30 days. The
+  moisture chart overlays blue dots on watering timestamps so you can
+  see how the soil responded.
+- AI-generated care info: when a new `plant_type` is added, the
+  backend calls Groq (`llama-3.1-8b-instant`) in the background and
+  fills in `description` + `watering_habits` automatically.
+- Per-IP rate limiting on all mutating endpoints via `slowapi` — for
+  example `POST /readings` is capped at 60/min and `POST /plants` at
+  5/min (the latter both prevents spam plant creation and protects
+  the Groq quota). Over-limit requests get HTTP 429.
 - *Planned:* Per-plant thresholds fetched by the chip on boot, so each
   plant's LED reflects values appropriate for that species (a succulent
   and a fern have very different "happy" ranges).
-- *Planned:* AI-generated care info when a new `plant_type` is added,
-  via the Claude API.
+- *Planned:* API token on `POST /readings` and basic auth on the
+  human-facing mutating endpoints, before the backend goes on a
+  public cloud VM.
 
 ## Hardware
 
@@ -47,7 +59,7 @@ Python backend for long-term storage and a web dashboard.
 - **FastAPI** — web framework (routes, async, auto JSON handling, form parsing via `Form(...)`)
 - **Jinja2** — server-side HTML templating
 - **Pico.css v2** + custom CSS variables — styling, no build step
-- **Chart.js v4** + `chartjs-adapter-date-fns` — moisture chart on the detail page
+- **Chart.js v4** + `chartjs-adapter-date-fns` — moisture chart on the detail page (with watering-event overlay)
 - **Lottie player** (`@lottiefiles/lottie-player`) — animated plant illustration
 - **Outfit + Fraunces + JetBrains Mono** (Google Fonts) — body / serif headings / numeric data
 - **Pydantic** — request body validation
@@ -55,6 +67,8 @@ Python backend for long-term storage and a web dashboard.
 - **python-multipart** — form-data parsing
 - **PostgreSQL 16** — database
 - **python-dotenv** — loads `.env` so credentials stay out of code
+- **groq** (Python SDK) — AI calls for auto-generated plant care info
+- **slowapi** — per-IP rate limiting on POST endpoints
 
 ## Database schema
 
@@ -85,10 +99,13 @@ Python backend for long-term storage and a web dashboard.
 Local pipeline complete: chip reads moisture every second, drives the LED
 locally, and POSTs a reading to FastAPI every 5 minutes. Readings land in
 PostgreSQL. The web dashboard is live (home grid + plant detail page with
-Chart.js graph). Plants can be added via the `/plants/new` form.
+Chart.js graph and watering-event overlay). Plants can be added, edited,
+and deleted via the web. Watering events can be logged from any page.
+New plant types get auto-generated care info via Groq. All mutating
+endpoints are rate-limited per-IP.
 
-Next: chart overlay for watering events, AI-generated care info on
-new plant types, cloud deployment.
+Next: API token on `POST /readings`, then basic auth on human-facing
+mutating endpoints, then cloud deployment.
 
 ## License
 

@@ -463,3 +463,28 @@ lottie-player {
     text-transform: lowercase;
     letter-spacing: 0.02em;
 }
+
+/* Destructive action — delete plant button on detail page */
+.danger-zone {
+    border-color: rgba(185, 69, 69, 0.4) !important;
+    background-color: rgba(185, 69, 69, 0.05) !important;
+}
+
+.danger-zone h3 {
+    color: #b94545 !important;
+}
+
+button.delete-button,
+button.delete-button[type="submit"] {
+    background-color: #b94545 !important;
+    color: #fff !important;
+    border: 1px solid #b94545 !important;
+    width: auto;
+}
+
+button.delete-button:hover,
+button.delete-button:focus {
+    background-color: #9a2f2f !important;
+    border-color: #9a2f2f !important;
+    color: #fff !important;
+}
