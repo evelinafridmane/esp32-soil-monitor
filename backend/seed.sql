@@ -2,6 +2,7 @@
 -- Safe to re-run: clears its own demo rows first, then re-inserts.
 -- Apply with:  psql soil_monitor -f seed.sql
 
+
 -- Start clean (CASCADE clears readings + waterings via FK).
 DELETE FROM plants WHERE name IN ('Bladverk Calathea', 'Fönster Monstera');
 

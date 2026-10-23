@@ -1,15 +1,4 @@
--- Soil Monitor database schema.
--- Reconstructed from app.py queries + CLAUDE.md notes (the original schema was
--- built by hand in DBeaver and never checked in). Safe to re-run: all
--- statements use IF NOT EXISTS.
---
--- Rebuild a fresh database with:
---   createdb soil_monitor
---   psql soil_monitor -f schema.sql
---   psql soil_monitor -f seed.sql   # optional sample data
 
--- Per-pot plants. plant_type is free text (may be NULL, may reference a
--- plant_types row by name, or may be a brand-new type not yet in plant_types).
 CREATE TABLE IF NOT EXISTS plants (
     id                    SERIAL PRIMARY KEY,
     name                  TEXT NOT NULL,
@@ -20,9 +9,6 @@ CREATE TABLE IF NOT EXISTS plants (
     created_at            TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- Per-type care info (shared across all pots of the same type). Name is the
--- key the plants table joins to. Rows are auto-created by the Groq background
--- task when a new plant_type first appears.
 CREATE TABLE IF NOT EXISTS plant_types (
     name            TEXT PRIMARY KEY,
     description     TEXT NOT NULL DEFAULT '',
